@@ -21,11 +21,13 @@
         return deviceId;
     }
 
+    var tizenAppVersion = tizen.application.getCurrentApplication().appInfo.version;
+
     var AppInfo = {
         deviceId: getDeviceId(),
         deviceName: 'Samsung Smart TV',
-        appName: 'Jellyfin for Tizen',
-        appVersion: tizen.application.getCurrentApplication().appInfo.version
+        appName: window.jellyfinWebVersion ? 'Jellyfin for Tizen (' + tizenAppVersion + ')' : 'Jellyfin for Tizen',
+        appVersion: window.jellyfinWebVersion || tizenAppVersion
     };
 
     // List of supported features

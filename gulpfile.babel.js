@@ -13,6 +13,21 @@ console.info('Using jellyfin-web from', WEB_DIR);
 
 const DISCARD_UNUSED_FONTS = !!process.env.DISCARD_UNUSED_FONTS;
 
+// Read the jellyfin-web version from its package.json
+function getWebVersion() {
+    for (const dir of [path.dirname(WEB_DIR), WEB_DIR]) {
+        const pkg = path.join(dir, 'package.json');
+        if (fs.existsSync(pkg)) {
+            return JSON.parse(fs.readFileSync(pkg, 'utf8')).version;
+        }
+    }
+    console.warn('jellyfin-web package.json not found, version will not be injected');
+    return null;
+}
+
+const WEB_VERSION = getWebVersion();
+console.info('Using jellyfin-web version', WEB_VERSION);
+
 const paths = {
     assets: {
         src: [
@@ -106,6 +121,13 @@ function modifyIndex() {
             const appMode = this.createElement('script');
             appMode.text = 'window.appMode=\'cordova\';';
             injectTarget.insertBefore(appMode, apploader);
+
+            // inject jellyfin-web version
+            if (WEB_VERSION) {
+                const webVersion = this.createElement('script');
+                webVersion.text = 'window.jellyfinWebVersion=' + JSON.stringify(WEB_VERSION) + ';';
+                injectTarget.insertBefore(webVersion, apploader);
+            }
 
             // inject tizen.js
             const tizen = this.createElement('script');
